@@ -29,7 +29,9 @@ public class TestMongoUpdateApplication {
         var update = new Update();
         update.set("child.mapmap.1012.2", 1);
         
-        mongo.update(ExampleModel.class).matching(Query.query(Criteria.where("_id").is("12345"))).apply(update).first().block();
+        mongo.upsert(Query.query(Criteria.where("_id").is("12345")), update, ExampleModel.class).block();
+
+        System.out.println(mongo.find(Query.query(Criteria.where("_id").is("12345")), ExampleModel.class).blockFirst());
     }
 
     static class ExampleModel {
@@ -43,6 +45,13 @@ public class TestMongoUpdateApplication {
         public void setChild(Child child) {
             this.child = child;
         }
+
+        @Override
+        public String toString() {
+            return "ExampleModel{" +
+                "child=" + child +
+                '}';
+        }
     }
     
     static class Child {
@@ -55,6 +64,13 @@ public class TestMongoUpdateApplication {
 
         public void setMapmap(Map<String, Map<String, String>> mapmap) {
             this.mapmap = mapmap;
+        }
+
+        @Override 
+        public String toString() {
+            return "Child{" +
+                "mapmap=" + mapmap +
+                '}';
         }
     }
 }
